@@ -16,9 +16,7 @@ export default function NumberGrid() {
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "lottery_numbers"), (snap) => {
       const map: Record<string, LotteryNumber> = {};
-      snap.forEach((doc) => {
-        map[doc.id] = { number: doc.id, ...doc.data() } as LotteryNumber;
-      });
+      snap.forEach((doc) => { map[doc.id] = { number: doc.id, ...doc.data() } as LotteryNumber; });
       setNumbers(map);
     });
     return () => unsub();
@@ -28,9 +26,7 @@ export default function NumberGrid() {
     if (selected.length === 0) { setTimeLeft(300); return; }
     if (timeLeft <= 0) {
       selected.forEach((n) => unlockNumber(n, user?.userId || ""));
-      setSelected([]);
-      setTimeLeft(300);
-      return;
+      setSelected([]); setTimeLeft(300); return;
     }
     const t = setTimeout(() => setTimeLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
@@ -65,122 +61,127 @@ export default function NumberGrid() {
   const mins = Math.floor(timeLeft / 60).toString().padStart(2, "0");
   const secs = (timeLeft % 60).toString().padStart(2, "0");
 
-  return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a", color: "#fff", fontFamily: "sans-serif" }}>
+  const G = {
+    gold: "linear-gradient(180deg, #FFD700 0%, #B8860B 60%, #FFD700 100%)",
+    goldText: { background: "linear-gradient(180deg, #FFD700 0%, #FFA500 100%)", WebkitBackgroundClip: "text" as const, WebkitTextFillColor: "transparent" as const },
+    card: { background: "rgba(255,215,0,0.05)", border: "1px solid rgba(255,215,0,0.15)", borderRadius: 16 } as React.CSSProperties,
+    divider: (dir = "right") => ({ flex: 1, height: 1, background: `linear-gradient(to ${dir}, transparent, #B8860B)` }) as React.CSSProperties,
+  };
 
-      {/* Hero Section */}
+  return (
+    <div style={{ minHeight: "100vh", background: "#080808", color: "#fff", fontFamily: "'Sarabun', sans-serif" }}>
+
+      {/* ===== HERO ===== */}
       <div style={{
-        background: "linear-gradient(135deg, #1a1000 0%, #0a0a0a 50%, #1a1000 100%)",
-        borderBottom: "1px solid #8B6914",
-        padding: "24px 16px",
+        background: "linear-gradient(180deg, #1a0f00 0%, #0d0800 60%, #080808 100%)",
+        padding: "28px 20px 24px",
         textAlign: "center",
+        borderBottom: "1px solid rgba(184,134,11,0.3)",
         position: "relative",
-        overflow: "hidden",
       }}>
-        {/* Crown */}
-        <div style={{ fontSize: 36, marginBottom: 4 }}>👑</div>
-        <h1 style={{
-          fontSize: 28, fontWeight: 900, letterSpacing: 2,
-          background: "linear-gradient(180deg, #FFD700 0%, #B8860B 50%, #FFD700 100%)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          margin: 0,
-        }}>RichNonStop168</h1>
+        {/* Glow */}
         <div style={{
-          fontSize: 40, fontWeight: 900, letterSpacing: 4,
-          background: "linear-gradient(180deg, #FFD700 0%, #FFA500 100%)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          lineHeight: 1.1,
-        }}>00 - 99</div>
+          position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
+          width: 200, height: 200,
+          background: "radial-gradient(circle, rgba(255,215,0,0.12) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+
+        <div style={{ fontSize: 44, lineHeight: 1, marginBottom: 4 }}>👑</div>
+
+        <div style={{ fontSize: 32, fontWeight: 900, letterSpacing: 3, ...G.goldText }}>
+          RichNonStop168
+        </div>
+
+        {/* Big number */}
+        <div style={{
+          fontSize: 64, fontWeight: 900, letterSpacing: 8, lineHeight: 1.1,
+          ...G.goldText, margin: "4px 0",
+        }}>00-99</div>
+
+        {/* Price badge */}
         <div style={{
           display: "inline-block",
+          background: "linear-gradient(135deg, rgba(184,134,11,0.3), rgba(255,215,0,0.1))",
           border: "1px solid #B8860B",
-          borderRadius: 20,
-          padding: "4px 16px",
-          fontSize: 13,
-          color: "#FFD700",
-          marginTop: 6,
-          background: "rgba(184,134,11,0.15)",
-        }}>ราคาเบอร์ละ 100 บาท</div>
+          borderRadius: 99, padding: "5px 20px",
+          fontSize: 13, color: "#FFD700", fontWeight: 600,
+          marginBottom: 16,
+        }}>💰 ราคาเบอร์ละ 100 บาท</div>
 
-        {/* Features row */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 16, flexWrap: "wrap" }}>
+        {/* Feature badges */}
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
           {[
-            { icon: "✅", text: "เบอร์สวย จ่ายง่าย" },
-            { icon: "🔒", text: "ปลอดภัย 100%" },
-            { icon: "⚡", text: "ได้รับทันที" },
+            { icon: "🏆", title: "เบอร์สวย จ่ายง่าย", sub: "เสริมความมั่นใจ" },
+            { icon: "🔒", title: "ปลอดภัย 100%", sub: "โอนแล้วได้ทันที" },
+            { icon: "⚡", title: "ได้รับทันที", sub: "หลังชำระเงิน" },
+            { icon: "🎧", title: "บริการ 24 ชม.", sub: "พร้อมดูแลทุกขั้นตอน" },
           ].map((f) => (
-            <div key={f.text} style={{
-              background: "rgba(255,215,0,0.08)",
+            <div key={f.title} style={{
+              background: "rgba(255,215,0,0.06)",
               border: "1px solid rgba(255,215,0,0.2)",
-              borderRadius: 10,
-              padding: "6px 12px",
-              fontSize: 11,
-              color: "#FFD700",
-              display: "flex", alignItems: "center", gap: 4,
+              borderRadius: 12, padding: "8px 12px",
+              textAlign: "center", minWidth: 120,
             }}>
-              {f.icon} {f.text}
+              <div style={{ fontSize: 20 }}>{f.icon}</div>
+              <div style={{ fontSize: 11, color: "#FFD700", fontWeight: 700, marginTop: 2 }}>{f.title}</div>
+              <div style={{ fontSize: 10, color: "#888" }}>{f.sub}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={{ maxWidth: 480, margin: "0 auto", padding: "16px" }}>
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "16px 12px" }}>
 
-        {/* User + Timer */}
+        {/* ===== USER BAR ===== */}
         {user && (
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            background: "rgba(255,215,0,0.05)",
-            border: "1px solid rgba(255,215,0,0.15)",
-            borderRadius: 12, padding: "8px 14px", marginBottom: 14,
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{
-                width: 30, height: 30, borderRadius: "50%",
-                background: "linear-gradient(135deg, #FFD700, #B8860B)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontWeight: 700, color: "#000", fontSize: 13,
-              }}>{user.displayName.charAt(0)}</div>
-              <span style={{ fontSize: 13, color: "#ccc" }}>{user.displayName}</span>
-            </div>
+          <div style={{ ...G.card, display: "flex", alignItems: "center", padding: "10px 14px", marginBottom: 16 }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: "50%",
+              background: G.gold,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontWeight: 900, color: "#000", fontSize: 14, flexShrink: 0,
+            }}>{user.displayName.charAt(0)}</div>
+            <span style={{ fontSize: 13, color: "#ccc", marginLeft: 10 }}>{user.displayName}</span>
             {selected.length > 0 && (
               <div style={{
-                fontSize: 13, fontWeight: 700, fontFamily: "monospace",
+                marginLeft: "auto",
+                fontSize: 14, fontWeight: 700, fontFamily: "monospace",
                 color: timeLeft < 60 ? "#ff4444" : "#FFD700",
               }}>⏱ {mins}:{secs}</div>
             )}
           </div>
         )}
 
-        {/* Section Title */}
-        <div style={{ textAlign: "center", marginBottom: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
-            <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, transparent, #B8860B)" }} />
-            <span style={{ color: "#FFD700", fontSize: 15, fontWeight: 700 }}>✦ เลือกเบอร์ทองของคุณ ✦</span>
-            <div style={{ flex: 1, height: 1, background: "linear-gradient(to left, transparent, #B8860B)" }} />
-          </div>
-          {/* Legend */}
-          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 10, flexWrap: "wrap" }}>
-            {[
-              { color: "#1a1a1a", border: "#444", label: "ว่าง" },
-              { color: "#1a3a1a", border: "#22c55e", label: "เลือกแล้ว" },
-              { color: "#2a2000", border: "#B8860B", label: "กำลังจอง" },
-              { color: "#2a0000", border: "#ef4444", label: "จองแล้ว" },
-            ].map((l) => (
-              <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#aaa" }}>
-                <div style={{ width: 12, height: 12, borderRadius: 3, background: l.color, border: `1px solid ${l.border}` }} />
-                {l.label}
-              </div>
-            ))}
-          </div>
+        {/* ===== SECTION TITLE ===== */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <div style={G.divider()} />
+          <span style={{ color: "#FFD700", fontSize: 14, fontWeight: 700, whiteSpace: "nowrap" }}>✦ เลือกเบอร์ทองของคุณ ✦</span>
+          <div style={G.divider("left")} />
         </div>
 
-        {/* Number Grid */}
+        {/* Legend */}
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 12, flexWrap: "wrap" }}>
+          {[
+            { bg: "#1e1e1e", border: "#444", label: "ว่าง" },
+            { bg: "#14532d", border: "#22c55e", label: "เลือกแล้ว" },
+            { bg: "#2a2000", border: "#B8860B", label: "กำลังจอง" },
+            { bg: "#2a0000", border: "#ef4444", label: "จองแล้ว" },
+          ].map((l) => (
+            <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#999" }}>
+              <div style={{ width: 14, height: 14, borderRadius: 4, background: l.bg, border: `1.5px solid ${l.border}`, flexShrink: 0 }} />
+              {l.label}
+            </div>
+          ))}
+        </div>
+
+        {/* ===== NUMBER GRID ===== */}
         <div style={{
-          display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 5,
+          display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8,
           background: "rgba(255,215,0,0.03)",
-          border: "1px solid rgba(255,215,0,0.1)",
-          borderRadius: 16, padding: 10,
+          border: "1px solid rgba(255,215,0,0.12)",
+          borderRadius: 20, padding: 12,
+          marginBottom: 16,
         }}>
           {Array.from({ length: 100 }, (_, i) => {
             const num = i.toString().padStart(2, "0");
@@ -191,8 +192,8 @@ export default function NumberGrid() {
             const isOwn = data?.lockedBy === user?.userId;
             const canClick = status === "available" || isOwn;
 
-            let bg = "#1a1a1a", border = "#333", color = "#ccc";
-            if (isSelected)      { bg = "#14532d"; border = "#22c55e"; color = "#4ade80"; }
+            let bg = "#1e1e1e", border = "#333", color = "#ccc", shadow = "none";
+            if (isSelected)             { bg = "linear-gradient(135deg,#14532d,#166534)"; border = "#22c55e"; color = "#4ade80"; shadow = "0 0 12px rgba(34,197,94,0.35)"; }
             else if (status === "locked")   { bg = "#2a2000"; border = "#B8860B"; color = "#FFD700"; }
             else if (status === "reserved") { bg = "#2a0000"; border = "#ef4444"; color = "#f87171"; }
             else if (status === "approved") { bg = "#3a0000"; border = "#dc2626"; color = "#fca5a5"; }
@@ -203,136 +204,142 @@ export default function NumberGrid() {
                 onClick={canClick ? () => handleSelect(num) : undefined}
                 disabled={isLoading}
                 style={{
-                  aspectRatio: "1", borderRadius: 8,
-                  border: `1px solid ${border}`,
-                  background: isSelected
-                    ? "linear-gradient(135deg, #14532d, #166534)"
-                    : bg,
+                  padding: "10px 4px",
+                  borderRadius: 10,
+                  border: `1.5px solid ${border}`,
+                  background: bg,
                   color,
-                  fontSize: 11, fontWeight: 700,
+                  fontSize: 16, fontWeight: 800,
                   cursor: canClick ? "pointer" : "not-allowed",
                   transition: "all 0.15s",
-                  transform: isSelected ? "scale(1.08)" : "scale(1)",
-                  boxShadow: isSelected ? `0 0 8px rgba(34,197,94,0.4)` : "none",
-                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transform: isSelected ? "scale(1.06)" : "scale(1)",
+                  boxShadow: shadow,
+                  display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center",
+                  gap: 2,
                   opacity: isLoading ? 0.5 : 1,
                 }}
               >
-                {isLoading ? "•" : num}
+                <span>{isLoading ? "•" : num}</span>
+                <span style={{ fontSize: 9, color: isSelected ? "#86efac" : "#555", fontWeight: 400 }}>100 บ.</span>
               </button>
             );
           })}
         </div>
 
-        {/* Selected Summary */}
+        {/* ===== SUMMARY ===== */}
         {selected.length > 0 ? (
-          <div style={{
-            marginTop: 16,
-            border: "1px solid #B8860B",
-            borderRadius: 16,
-            overflow: "hidden",
-            background: "#0d0d0d",
-          }}>
+          <div style={{ border: "1px solid #B8860B", borderRadius: 20, overflow: "hidden", marginBottom: 24 }}>
+            {/* Header */}
             <div style={{
-              background: "linear-gradient(135deg, #B8860B, #8B6914)",
-              padding: "10px 16px",
+              background: "linear-gradient(135deg, #B8860B 0%, #8B6914 50%, #B8860B 100%)",
+              padding: "12px 16px",
               display: "flex", justifyContent: "space-between", alignItems: "center",
             }}>
-              <span style={{ fontWeight: 700, color: "#fff", fontSize: 14 }}>
-                🛒 เบอร์ที่เลือก ({selected.length} เบอร์)
-              </span>
-              <span style={{ color: "#fff", fontSize: 12, fontFamily: "monospace" }}>
-                ⏱ {mins}:{secs}
-              </span>
+              <span style={{ fontWeight: 800, color: "#fff", fontSize: 15 }}>🛒 เบอร์ที่เลือก ({selected.length} เบอร์)</span>
+              <span style={{ color: "#fff", fontSize: 13, fontFamily: "monospace", fontWeight: 700 }}>⏱ {mins}:{secs}</span>
             </div>
-            <div style={{ padding: 16 }}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+
+            <div style={{ background: "#0d0d0d", padding: 16 }}>
+              {/* Numbers */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
                 {selected.map((n) => (
                   <span key={n} style={{
                     background: "rgba(255,215,0,0.1)",
                     border: "1px solid #B8860B",
                     color: "#FFD700",
-                    padding: "3px 10px",
-                    borderRadius: 8,
-                    fontSize: 14, fontWeight: 700,
+                    padding: "4px 14px",
+                    borderRadius: 10,
+                    fontSize: 16, fontWeight: 800,
                   }}>{n}</span>
                 ))}
               </div>
-              <div style={{
-                display: "flex", justifyContent: "space-between",
-                borderTop: "1px solid #222", paddingTop: 12, marginBottom: 14,
-              }}>
-                <span style={{ color: "#aaa", fontSize: 13 }}>ยอดรวมทั้งหมด</span>
-                <span style={{
-                  fontSize: 20, fontWeight: 900,
-                  background: "linear-gradient(180deg, #FFD700, #B8860B)",
-                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                }}>{selected.length * 100} บาท</span>
+
+              {/* Price */}
+              <div style={{ borderTop: "1px solid #1e1e1e", paddingTop: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ color: "#888", fontSize: 13 }}>ราคาต่อเบอร์</span>
+                  <span style={{ color: "#ccc", fontSize: 13 }}>100 บาท</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <span style={{ color: "#fff", fontSize: 15, fontWeight: 700 }}>ยอดรวมทั้งหมด</span>
+                  <span style={{ fontSize: 26, fontWeight: 900, ...G.goldText }}>{selected.length * 100} บาท</span>
+                </div>
+
+                {/* CTA Button */}
+                <button style={{
+                  width: "100%",
+                  background: "linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%)",
+                  border: "none", borderRadius: 14,
+                  padding: "16px",
+                  fontSize: 17, fontWeight: 900, color: "#000",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 24px rgba(255,215,0,0.4)",
+                  letterSpacing: 1,
+                }}>
+                  ✅ ยืนยันและส่งสลิป
+                </button>
               </div>
-              <button style={{
-                width: "100%",
-                background: "linear-gradient(135deg, #FFD700 0%, #B8860B 50%, #FFD700 100%)",
-                border: "none", borderRadius: 12,
-                padding: "14px",
-                fontSize: 16, fontWeight: 900, color: "#000",
-                cursor: "pointer",
-                boxShadow: "0 4px 20px rgba(255,215,0,0.3)",
-                letterSpacing: 1,
-              }}>
-                ✅ ยืนยันและส่งสลิป
-              </button>
             </div>
           </div>
         ) : (
-          <p style={{ textAlign: "center", color: "#555", fontSize: 12, marginTop: 12 }}>
-            กดเลือกเบอร์ที่ต้องการได้เลย
+          <p style={{ textAlign: "center", color: "#444", fontSize: 12, marginBottom: 24 }}>
+            ✨ กดเลือกเบอร์ที่ต้องการได้เลย
           </p>
         )}
 
-        {/* How to order */}
-        <div style={{ marginTop: 24, marginBottom: 8 }}>
-          <div style={{ textAlign: "center", marginBottom: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
-              <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, transparent, #B8860B)" }} />
-              <span style={{ color: "#FFD700", fontSize: 14, fontWeight: 700 }}>✦ วิธีการสั่งซื้อ ✦</span>
-              <div style={{ flex: 1, height: 1, background: "linear-gradient(to left, transparent, #B8860B)" }} />
-            </div>
+        {/* ===== HOW TO ORDER ===== */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <div style={G.divider()} />
+            <span style={{ color: "#FFD700", fontSize: 13, fontWeight: 700, whiteSpace: "nowrap" }}>✦ วิธีการสั่งซื้อ ✦</span>
+            <div style={G.divider("left")} />
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
             {[
-              { num: "1", icon: "🔍", label: "เลือกเบอร์" },
-              { num: "2", icon: "🛒", label: "กดยืนยัน" },
-              { num: "3", icon: "💳", label: "ชำระ 100 บาท" },
-              { num: "4", icon: "⚡", label: "รับเบอร์ทันที" },
-            ].map((s) => (
+              { num: "1", icon: "🔍", label: "เลือกเบอร์", sub: "00-99 ที่ชอบ" },
+              { num: "2", icon: "🛒", label: "กดยืนยัน", sub: "ตรวจสอบเบอร์" },
+              { num: "3", icon: "💳", label: "ชำระเงิน", sub: "100 บาท/เบอร์" },
+              { num: "4", icon: "⚡", label: "รับเบอร์", sub: "ได้รับทันที" },
+            ].map((s, idx) => (
               <div key={s.num} style={{
-                flex: 1, textAlign: "center",
-                background: "rgba(255,215,0,0.05)",
-                border: "1px solid rgba(255,215,0,0.1)",
-                borderRadius: 12, padding: "10px 4px",
+                ...G.card,
+                padding: "12px 6px",
+                textAlign: "center",
+                position: "relative",
               }}>
+                {idx < 3 && (
+                  <div style={{
+                    position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)",
+                    color: "#B8860B", fontSize: 12, zIndex: 1,
+                  }}>›</div>
+                )}
                 <div style={{
-                  width: 24, height: 24, borderRadius: "50%",
-                  background: "linear-gradient(135deg, #FFD700, #B8860B)",
-                  color: "#000", fontSize: 11, fontWeight: 700,
+                  width: 22, height: 22, borderRadius: "50%",
+                  background: G.gold,
+                  color: "#000", fontSize: 11, fontWeight: 900,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   margin: "0 auto 6px",
                 }}>{s.num}</div>
-                <div style={{ fontSize: 18 }}>{s.icon}</div>
-                <div style={{ fontSize: 10, color: "#aaa", marginTop: 4 }}>{s.label}</div>
+                <div style={{ fontSize: 22 }}>{s.icon}</div>
+                <div style={{ fontSize: 11, color: "#FFD700", fontWeight: 700, marginTop: 4 }}>{s.label}</div>
+                <div style={{ fontSize: 10, color: "#666", marginTop: 2 }}>{s.sub}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Footer */}
+        {/* ===== FOOTER ===== */}
         <div style={{
-          marginTop: 24, textAlign: "center",
-          borderTop: "1px solid #222", paddingTop: 16,
-          color: "#555", fontSize: 11,
+          borderTop: "1px solid #1a1a1a", paddingTop: 16,
+          textAlign: "center", color: "#444", fontSize: 11,
         }}>
-          © 2024 RichNonStop168 · บริการด้วยใจ 24 ชม.
+          <div style={{ fontSize: 20, marginBottom: 4 }}>👑</div>
+          <div style={{ ...G.goldText, fontSize: 13, fontWeight: 700 }}>RichNonStop168</div>
+          <div style={{ marginTop: 4 }}>เบอร์สวย จ่ายง่าย เสริมความมั่นใจ</div>
+          <div style={{ marginTop: 8 }}>© 2024 RichNonStop168 · บริการด้วยใจ 24 ชม.</div>
         </div>
+
       </div>
     </div>
   );
